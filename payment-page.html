@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unlock Results — Payment</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --red: #e02020;
+      --red-dark: #b81818;
+      --red-light: #fff0f0;
+      --gray-50: #f9f9f9;
+      --gray-100: #f0f0f0;
+      --gray-200: #e0e0e0;
+      --gray-400: #aaa;
+      --gray-600: #666;
+      --gray-900: #111;
+      --white: #fff;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --font: 'Sora', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: var(--font);
+      background: #0d0d0d;
+      color: var(--gray-900);
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Sheet ─────────────────────────────────────── */
+    .sheet {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 420px;
+      padding: 32px 28px 36px;
+      position: relative;
+    }
+
+    .sheet-header {
+      margin-bottom: 24px;
+    }
+
+    .sheet-header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 6px;
+    }
+
+    .sheet-header p {
+      font-size: 14px;
+      color: var(--gray-600);
+      line-height: 1.5;
+    }
+
+    /* ── Section label ──────────────────────────────── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--gray-400);
+      margin-bottom: 10px;
+    }
+
+    /* ── Payment method tabs ────────────────────────── */
+    .pm-section {
+      margin-bottom: 24px;
+    }
+
+    .pm-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .pm-tab {
+      flex: 1;
+      padding: 9px 6px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      background: var(--white);
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gray-600);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+
+    .pm-tab svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .pm-tab.active {
+      border-color: var(--red);
+      color: var(--red);
+      background: var(--red-light);
+    }
+
+    .pm-tab:hover:not(.active) {
+      border-color: var(--gray-400);
+    }
+
+    /* ── Card form ──────────────────────────────────── */
+    .card-form {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card-form.visible {
+      display: flex;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      flex: 1;
+    }
+
+    .form-group label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--gray-600);
+    }
+
+    .form-group input {
+      padding: 11px 14px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      font-family: var(--font);
+      font-size: 14px;
+      color: var(--gray-900);
+      background: var(--gray-50);
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .form-group input::placeholder {
+      color: var(--gray-400);
+      font-family: var(--font);
+    }
+
+    .form-group input:focus {
+      border-color: var(--red);
+      background: var(--white);
+    }
+
+    .form-group input.mono {
+      font-family: var(--mono);
+      font-size: 15px;
+      letter-spacing: 1px;
+    }
+
+    .card-number-wrap {
+      position: relative;
+    }
+
+    .card-number-wrap input {
+      padding-right: 48px;
+    }
+
+    .card-brand {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      gap: 2px;
+    }
+
+    .card-brand .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .card-brand .dot.r {
+      background: #eb001b;
+    }
+
+    .card-brand .dot.y {
+      background: #f79e1b;
+      margin-left: -5px;
+    }
+
+    /* ── PayPal panel ───────────────────────────────── */
+    .paypal-panel,
+    .crypto-panel,
+    .applepay-panel {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      background: var(--gray-50);
+      border-radius: var(--radius-md);
+      border: 1.5px dashed var(--gray-200);
+      gap: 10px;
+    }
+
+    .paypal-panel.visible,
+    .crypto-panel.visible,
+    .applepay-panel.visible {
+      display: flex;
+    }
+
+    .paypal-panel p,
+    .crypto-panel p,
+    .applepay-panel p {
+      font-size: 13px;
+      color: var(--gray-600);
+      text-align: center;
+    }
+
+    .paypal-btn {
+      background: #ffc439;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--font);
+      color: #003087;
+      letter-spacing: -0.3px;
+    }
+
+    .paypal-btn span {
+      color: #009cde;
+    }
+
+    .crypto-address {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: var(--gray-100);
+      border: 1px solid var(--gray-200);
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: var(--gray-600);
+      word-break: break-all;
+      text-align: center;
+    }
+
+    .crypto-copy-btn {
+      background: var(--gray-900);
+      color: var(--white);
+      border: none;
+      border-radius: 6px;
+      padding: 8px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font);
+    }
+
+    .apple-pay-btn {
+      background: var(--gray-900);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      padding: 13px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── Divider ────────────────────────────────────── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      color: var(--gray-400);
+      font-size: 12px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--gray-200);
+    }
+
+    /* ── Plans ──────────────────────────────────────── */
+    .plans-section {
+      margin-bottom: 8px;
+    }
+
+    .plans-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .plan-card {
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      padding: 18px 18px 16px;
+      position: relative;
+      background: var(--white);
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .plan-card:hover {
+      border-color: var(--gray-400);
+    }
+
+    .plan-card.selected {
+      border-color: var(--red);
+      background: #fff8f8;
+    }
+
+    .plan-card.featured {
+      border-color: var(--red);
+    }
+
+    .badge {
+      position: absolute;
+      top: -11px;
+      left: 14px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    .badge.red {
+      background: var(--red);
+      color: var(--white);
+    }
+
+    .badge.green {
+      background: #1a9e4a;
+      color: var(--white);
+    }
+
+    .badge.gray {
+      background: var(--gray-900);
+      color: var(--white);
+    }
+
+    .plan-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 4px;
+    }
+
+    .plan-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--gray-900);
+    }
+
+    .plan-desc {
+      font-size: 12px;
+      color: var(--gray-600);
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+
+    .plan-price-block {
+      text-align: right;
+    }
+
+    .plan-price {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--gray-900);
+      line-height: 1;
+    }
+
+    .plan-price.accent {
+      color: var(--red);
+    }
+
+    .plan-price-note {
+      font-size: 11px;
+      color: var(--gray-400);
+      margin-top: 2px;
+    }
+
+    .plan-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .feat-pill {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: var(--gray-100);
+      color: var(--gray-600);
+    }
+
+    .feat-pill.green {
+      background: #e6f7ee;
+      color: #1a6e3a;
+    }
+
+    .plan-radio {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s;
+    }
+
+    .plan-card.selected .plan-radio {
+      border-color: var(--red);
+    }
+
+    .plan-radio-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--red);
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .plan-card.selected .plan-radio-dot {
+      opacity: 1;
+    }
+
+    /* ── CTA ────────────────────────────────────────── */
+    .cta-area {
+      margin-top: 20px;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-top: 1px solid var(--gray-100);
+      border-bottom: 1px solid var(--gray-100);
+      margin-bottom: 16px;
+    }
+
+    .total-label {
+      font-size: 13px;
+      color: var(--gray-600);
+    }
+
+    .total-amount {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gray-900);
+      font-family: var(--mono);
+    }
+
+    .pay-btn {
+      width: 100%;
+      background: var(--red);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 15px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background 0.15s, transform 0.1s;
+      letter-spacing: -0.2px;
+    }
+
+    .pay-btn:hover {
+      background: var(--red-dark);
+    }
+
+    .pay-btn:active {
+      transform: scale(0.98);
+    }
+
+    .pay-btn .arrow {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pay-btn .arrow::after {
+      content: '';
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      border-left: 5px solid #fff;
+      margin-left: 1px;
+    }
+
+    .secure-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--gray-400);
+    }
+
+    .secure-row svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    /* ── Success overlay ────────────────────────────── */
+    #success-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    #success-overlay.show {
+      display: flex;
+    }
+
+    .success-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 36px 28px;
+      max-width: 340px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .checkmark {
+      width: 60px;
+      height: 60px;
+      background: #e6f7ee;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 18px;
+    }
+
+    .checkmark svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .success-card h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--gray-900);
+    }
+
+    .success-card p {
+      font-size: 14px;
+      color: var(--gray-600);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .success-btn {
+      width: 100%;
+      background: var(--gray-900);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 13px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font);
+    }
+
+    /* ── Toast ──────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gray-900);
+      color: var(--white);
+      font-size: 13px;
+      font-family: var(--font);
+      padding: 10px 20px;
+      border-radius: 20px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 200;
+    }
+
+    #toast.show {
+      opacity: 1;
+    }
+
+
+    /* ─────────────────────────────────────────────
+   DESKTOP RESPONSIVE UPGRADE
+───────────────────────────────────────────── */
+
+    /* Tablets */
+    @media (min-width: 768px) {
+      .sheet {
+        max-width: 700px;
+        padding: 40px 36px;
+      }
+
+      .plans-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+
+      .plan-card {
+        min-height: 180px;
+      }
+
+      .sheet-header h1 {
+        font-size: 28px;
+      }
+    }
+
+    /* Desktop */
+    @media (min-width: 1024px) {
+      body {
+        padding: 3rem;
+      }
+
+      .sheet {
+        max-width: 1000px;
+        padding: 48px 50px;
+      }
+
+      /* 2-column main layout: payment left, plans right */
+      .sheet {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+          "header header"
+          "payment plans"
+          "cta cta";
+        gap: 30px 40px;
+      }
+
+      .sheet-header {
+        grid-area: header;
+      }
+
+      .pm-section {
+        grid-area: payment;
+      }
+
+      .plans-section {
+        grid-area: plans;
+      }
+
+      .cta-area {
+        grid-area: cta;
+      }
+
+      /* Make payment panel feel less cramped */
+      .card-form input {
+        font-size: 15px;
+      }
+
+      .paypal-panel,
+      .crypto-panel,
+      .applepay-panel {
+        padding: 28px;
+      }
+
+      /* Bigger CTA on desktop */
+      .pay-btn {
+        font-size: 18px;
+        padding: 18px;
+      }
+    }
+
+    /* Large desktop */
+    @media (min-width: 1280px) {
+      .sheet {
+        max-width: 1100px;
+      }
+
+      .plan-card:hover {
+        transform: translateY(-2px);
+        transition: 0.2s ease;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="sheet">
+
+    <div class="sheet-header">
+      <h1>Unlock results</h1>
+      <p>Choose your plan and payment method to see the calculation result</p>
+    </div>
+
+    <!-- Payment Method -->
+    <div class="pm-section">
+      <div class="section-label">Payment method</div>
+
+      <div class="pm-tabs">
+        <button class="pm-tab active" onclick="switchTab('card', this)">
+          <svg viewBox="0 0 20 20" fill="none">
+            <rect x="1" y="4" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.5" />
+            <path d="M1 8h18" stroke="currentColor" stroke-width="1.5" />
+          </svg>
+          Card
+        </button>
+        <button class="pm-tab" onclick="switchTab('paypal', this)">
+          <svg viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5" />
+            <path d="M7 10c0-1.5 1-3 3-3h1c1.5 0 2 1 2 2s-1 2-2 2H9l-.5 3" stroke="currentColor" stroke-width="1.5"
+              stroke-linecap="round" />
+          </svg>
+          PayPal
+        </button>
+        <button class="pm-tab" onclick="switchTab('crypto', this)">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path d="M10 2l2.5 5H17l-4 3.5 1.5 5.5L10 13l-4.5 3L7 10.5 3 7h4.5L10 2z" stroke="currentColor"
+              stroke-width="1.5" stroke-linejoin="round" />
+          </svg>
+          Crypto
+        </button>
+        <button class="pm-tab" onclick="switchTab('applepay', this)">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path
+              d="M13 3c-1.5 0-2 1-3 1s-1.5-1-3-1C5 3 3 5 3 8c0 4 3 9 5 9 .8 0 1-.5 2-.5s1.2.5 2 .5c2 0 5-5 5-9 0-3-2-5-4-5z"
+              stroke="currentColor" stroke-width="1.5" />
+            <path d="M12 2c0-1-1-2-2-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+          Apple Pay
+        </button>
+      </div>
+
+      <!-- Card form -->
+      <div class="card-form visible" id="card-panel">
+        <div class="form-group">
+          <label>Name on card</label>
+          <input type="text" placeholder="John Smith">
+        </div>
+        <div class="form-group">
+          <label>Card number</label>
+          <div class="card-number-wrap">
+            <input type="text" class="mono" placeholder="0000  0000  0000  0000" maxlength="19" id="cardnum"
+              oninput="formatCard(this)">
+            <div class="card-brand">
+              <div class="dot r"></div>
+              <div class="dot y"></div>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Expiry</label>
+            <input type="text" class="mono" placeholder="MM / YY" maxlength="7" oninput="formatExpiry(this)">
+          </div>
+          <div class="form-group">
+            <label>CVV</label>
+            <input type="text" class="mono" placeholder="•••" maxlength="4">
+          </div>
+        </div>
+      </div>
+
+      <!-- PayPal panel -->
+      <div class="paypal-panel" id="paypal-panel">
+        <p>You'll be redirected to PayPal to complete your purchase securely.</p>
+        <button class="paypal-btn">Pay<span>Pal</span></button>
+      </div>
+
+      <!-- Crypto panel -->
+      <div class="crypto-panel" id="crypto-panel">
+        <p>Send exact amount to this BTC address:</p>
+        <div class="crypto-address">bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</div>
+        <button class="crypto-copy-btn" onclick="copyAddress()">Copy address</button>
+        <p style="font-size:11px;">BTC, ETH, USDC accepted</p>
+      </div>
+
+      <!-- Apple Pay panel -->
+      <div class="applepay-panel" id="applepay-panel">
+        <p>Complete purchase with Face ID or Touch ID.</p>
+        <button class="apple-pay-btn">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="white">
+            <path
+              d="M15 2H3C2.4 2 2 2.4 2 3v12c0 .6.4 1 1 1h12c.6 0 1-.4 1-1V3c0-.6-.4-1-1-1zM9 13.5c-1.5 0-2.5-.8-2.5-2s1-2 2.5-2 2.5.8 2.5 2-1 2-2.5 2zM12 8H6V6h6v2z" />
+          </svg>
+          Pay with Apple Pay
+        </button>
+      </div>
+    </div>
+
+    <div class="divider">choose a plan</div>
+
+    <!-- Plans -->
+    <div class="plans-section">
+      <div class="plans-grid">
+
+        <div class="plan-card" id="plan-basic" onclick="selectPlan('basic', '$4.99')">
+          <div class="plan-radio">
+            <div class="plan-radio-dot"></div>
+          </div>
+          <div class="plan-top">
+            <div class="plan-name">Single result</div>
+            <div class="plan-price-block">
+              <div class="plan-price">$4.99</div>
+              <div class="plan-price-note">one-time</div>
+            </div>
+          </div>
+          <div class="plan-desc">Unlock just this calculation. No subscription.</div>
+          <div class="plan-features">
+            <span class="feat-pill">1 result</span>
+            <span class="feat-pill">Instant access</span>
+            <span class="feat-pill">No signup</span>
+          </div>
+        </div>
+
+        <div class="plan-card featured" id="plan-monthly" onclick="selectPlan('monthly', '$9.99/mo')">
+          <div class="badge red">Most popular</div>
+          <div class="plan-radio">
+            <div class="plan-radio-dot"></div>
+          </div>
+          <div class="plan-top">
+            <div class="plan-name">Monthly plan</div>
+            <div class="plan-price-block">
+              <div class="plan-price accent">$9.99</div>
+              <div class="plan-price-note">per month</div>
+            </div>
+          </div>
+          <div class="plan-desc">Unlimited calculations, cancel anytime.</div>
+          <div class="plan-features">
+            <span class="feat-pill green">Unlimited results</span>
+            <span class="feat-pill">History export</span>
+            <span class="feat-pill">Priority support</span>
+          </div>
+        </div>
+
+        <div class="plan-card" id="plan-yearly" onclick="selectPlan('yearly', '$59.99/yr')">
+          <div class="badge green">Best value</div>
+          <div class="plan-radio">
+            <div class="plan-radio-dot"></div>
+          </div>
+          <div class="plan-top">
+            <div class="plan-name">Yearly plan</div>
+            <div class="plan-price-block">
+              <div class="plan-price">$59.99</div>
+              <div class="plan-price-note">per year · save 50%</div>
+            </div>
+          </div>
+          <div class="plan-desc">Everything in Monthly, billed annually.</div>
+          <div class="plan-features">
+            <span class="feat-pill green">Unlimited results</span>
+            <span class="feat-pill green">API access</span>
+            <span class="feat-pill">Save 50%</span>
+          </div>
+        </div>
+
+        <div class="plan-card" id="plan-lifetime" onclick="selectPlan('lifetime', '$299')">
+          <div class="badge gray">Lifetime</div>
+          <div class="plan-radio">
+            <div class="plan-radio-dot"></div>
+          </div>
+          <div class="plan-top">
+            <div class="plan-name">Lifetime access</div>
+            <div class="plan-price-block">
+              <div class="plan-price">$299</div>
+              <div class="plan-price-note">pay once, forever</div>
+            </div>
+          </div>
+          <div class="plan-desc">One payment. All future features included.</div>
+          <div class="plan-features">
+            <span class="feat-pill green">All features forever</span>
+            <span class="feat-pill green">Early access</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-area">
+      <div class="total-row">
+        <span class="total-label">Total due today</span>
+        <span class="total-amount" id="total-display">—</span>
+      </div>
+      <button class="pay-btn" onclick="handlePay()">
+        Unlock my result
+        <div class="arrow"></div>
+      </button>
+      <div class="secure-row">
+        <svg viewBox="0 0 13 13" fill="none">
+          <rect x="1" y="5" width="11" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2" />
+          <path d="M4 5V3.5a2.5 2.5 0 015 0V5" stroke="currentColor" stroke-width="1.2" />
+        </svg>
+        Secured by 256-bit SSL encryption
+      </div>
+    </div>
+  </div>
+
+  <!-- Success overlay -->
+  <div id="success-overlay">
+    <div class="success-card">
+      <div class="checkmark">
+        <svg viewBox="0 0 28 28" fill="none">
+          <path d="M6 14l6 6 10-12" stroke="#1a9e4a" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </div>
+      <h2>Payment confirmed!</h2>
+      <p id="success-msg">Your result is ready to view.</p>
+      <button class="success-btn" onclick="closeSuccess()">View my result →</button>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    let selectedPlan = null;
+    let selectedPrice = null;
+
+    function switchTab(type, btn) {
+      document.querySelectorAll('.pm-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      ['card-panel', 'paypal-panel', 'crypto-panel', 'applepay-panel'].forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.remove('visible');
+        el.style.display = '';
+      });
+      const map = { card: 'card-panel', paypal: 'paypal-panel', crypto: 'crypto-panel', applepay: 'applepay-panel' };
+      const target = document.getElementById(map[type]);
+      if (type === 'card') {
+        target.classList.add('visible');
+      } else {
+        target.style.display = 'flex';
+      }
+    }
+
+    function selectPlan(id, price) {
+      document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+      document.getElementById('plan-' + id).classList.add('selected');
+      selectedPlan = id;
+      selectedPrice = price;
+      document.getElementById('total-display').textContent = price;
+    }
+
+    function handlePay() {
+      if (!selectedPlan) {
+        showToast('Please select a plan first.');
+        return;
+      }
+      document.getElementById('success-msg').textContent =
+        'You\'ve unlocked ' + { basic: 'this result', monthly: 'unlimited results (monthly)', yearly: 'unlimited results (yearly)', lifetime: 'lifetime access' }[selectedPlan] + ' for ' + selectedPrice + '.';
+      document.getElementById('success-overlay').classList.add('show');
+    }
+
+    function closeSuccess() {
+      document.getElementById('success-overlay').classList.remove('show');
+    }
+
+    function copyAddress() {
+      navigator.clipboard.writeText('bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh').then(() => showToast('Address copied!'));
+    }
+
+    function formatCard(input) {
+      let v = input.value.replace(/\D/g, '').substring(0, 16);
+      input.value = v.replace(/(.{4})/g, '$1  ').trim();
+    }
+
+    function formatExpiry(input) {
+      let v = input.value.replace(/\D/g, '').substring(0, 4);
+      if (v.length >= 3) v = v.substring(0, 2) + ' / ' + v.substring(2);
+      input.value = v;
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+  </script>
+</body>
+
+</html>
